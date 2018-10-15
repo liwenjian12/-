@@ -2,7 +2,7 @@
 
 ​	python实现常用数据结构，包含属性和动作。属性：结构、value、left、right。动作：count、search、update、new、delete、遍历、判断是否empty。
 
-[TOC]
+<!--TOC-->
 
 ## 线性结构
 
