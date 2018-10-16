@@ -1,7 +1,7 @@
 图
 <--TOC-->
 - [概念](#概念)
-- [python 实现](#python 实现)
+- [python实现](#python实现)
 - [遍历](#遍历)
 - [其他动作](#其他动作)
 <--/TOC-->
@@ -41,17 +41,163 @@
 - 有向树：如果一个有向图恰有一个顶点的入度为0，其余顶点的入度为1，则是一棵有向树。
 
 ## python 实现
-    图的存储结构，常用的是”邻接矩阵”和”邻接表”。
-    通常采用两个数组来实现邻接矩阵：一个一维数组用来保存顶点信息，一个二维数组来用保存边的信息。
+  图的存储结构，常用的是”邻接矩阵”和”邻接表”。
+  通常采用两个数组来实现邻接矩阵：一个一维数组用来保存顶点信息，一个二维数组来用保存边的信息。
 邻接矩阵的缺点就是比较耗费空间。
     邻接表是图的一种链式存储表示方法。它是改进后的”邻接矩阵”，它的缺点是不方便判断两个顶点之间是否有边，但是相对邻接矩阵来说更省空间。
-    * **在Python中，图主要是通过列表和词典来构造。**
-    实现的功能：
-
-    - 寻找一条路径
-    - 查找所有的路径
-    - 查找最短路径
-
+    
+   * **在Python中，图主要是通过列表和词典来构造。**
+   实现的功能：
+   - 寻找一条路径
+   - 查找所有的路径
+   - 查找最短路径
+```
+ADT Graph: 
+    Graph(self) #图的创建 
+    is_empty(self) #空图判断 
+    vertex_num(self) #返回顶点个数 
+    edge_num(self) #返回边的个数 
+    vertices(self) #获得图中顶点的集合 
+    edges(self) #获得图中边的集合 
+    add_vertex(self,vertex) #增加一个顶点 
+    add_edge(self,v1,v2) #在v1，v2间加边 
+    get_edge(self,v1,v2) #获得边的有关信息 
+    out_edges(self,v) #获得v的所有出边 
+    degree(self,v) #检查v的度
+```
+** 具体实现 **
+```
+#采用邻接矩阵实现
+class Graph:
+    def __init__(self, mat, unconn = 0): # 初始化
+        vnum = len(mat)
+        for x in mat:
+            if len(x) != vnum:
+                raise ValueError("Argument for 'Graph'.")
+        self._mat = [mat[i][:] for i in range(vnum)]   #使用拷贝的数据
+        self._unonn = unconn
+        self._vnum = vnum
+    def vertex_num(self):              # 返回节点数目
+        return self._vnum
+    def _invalid(self,v):              # 检验输入的节点是否合法
+        return v > 0 or v >= self._vnum
+    def add_adge(self,vi,vj,val=1):    # 增加边
+        if self._invalid(vi) or self._invalid(vj):
+            raise GraphError(str(vi) + ' or' + str(vj) + 'is not a valid vertex.'
+        self._mat[vi][vj] = val
+    def get_adge(self,vi,vj):          # 得到边的信息
+        if self._invalid(vi) or self._invalid(vj):
+            raise GraphError(str(vi) + ' or' + str(vj) + 'is not a valid vertex.')
+        return self._mat[vi][vj]
+    def out_edges(self,vi): #得到vi出发的所有边 
+        if self._invalid(vi): 
+            raise GraphError(str(vi)+' is not a valid vertex.') 
+        return self._out_edges(self._mat[vi],self._unconn)
+    
+    @staticmethod
+    def _out_edges(row, unconn)： # 辅助函数
+        edges = []
+        for i in range(len(row)):
+            if row[i] != unconn:
+                edges.append((i,row[i]))
+        return edges
+        
+    
+            
+                
+#采用邻接表实现，需要重写一些方法，但功能相同 
+class GraphAL(Graph): #继承于Graph 
+    def __init__(self,mat=[],unconn=0): 
+        vnum = len(mat) 
+        for x in mat: 
+            if len(x) !=vnum: 
+                raise ValueError("Argument for 'Graph'.") 
+        self._mat = [Graph._out_edges(mat[i],unconn) for i in range(vnum)] 
+        self._vnum = vnum 
+        self._unconn = unconn 
+    def add_edge(self,vi,vj,val = 1): 
+        if self._vnum == 0: 
+            raise GraphError('Cannot add edge to empty graph.') 
+        if self._invalid(vi) or self._invalid(vj): 
+            raise GraphError(str(vi) + ' or' + str(vj) + ' is not valid vertex.') 
+        row = self._mat[vi] 
+        i = 0 
+        while i < len(row): 
+            if row[i][0] == vj: 
+                self._mat[vi][i] = (vj,val) 
+                return 
+            if row[i][0] > vj: 
+                break 
+            i += 1 
+        self._mat[vi].insert(i,(vj,val)) 
+    def get_edge(self,vi,vj): 
+        if self._invalid(vi) or self._invalid(vj): 
+            raise GraphError(str(vi) + ' or' + str(vj) + ' is not valid vertex.') 
+        for i,val in self._mat[vi]: 
+            if i == vj: 
+                return val 
+        return self._unconn 
+    def out_edges(self,vi): 
+        if self._invalid(vi): 
+            raise GraphError(str(vi) + ' is not valid vertex.') 
+        return self._mat[vi]
+```
 ## 遍历
+- 图的深度优先遍历算法
+```
+import SStack
+def DFS_graph(graph, v0):
+    vnum = graph.vertex_num()
+    visited = [0]*vnum        #用于记录已访问结点
+    visited[v0] = 1
+    DFS_seq = [v0]            #记录遍历顺序
+    st = SStack()
+    st.push((0, graph.out_edges(v0)))   # 入栈
+    while not st.is_empty():
+        i,edges = st.pop()
+        if i < len(edges):
+            v,e = edges[i]
+            st.push((i + 1, edges)) # 下次访问
+            if not visited[v]:
+                DFS_seq.append(v)
+                visited[v] = 1
+                st.push((0, graph.out_edges(v)))
+    return DFS_seq
+            st.push((i+1, edges))
+    
+```
 
 ## 其他动作
+### 最小生成树
+   一个有 n 个结点的连通图的生成树是原图的极小连通子图，且包含原图中的所有 n 个结点，并且有保持图连通的最少的边。最小生成树可以用kruskal（克鲁斯卡尔）算法或prim（普里姆）算法求出。
+   ```
+   """1）Kruskal算法
+Kruskal算法是一种构造最小生成树的简单算法，其中的思想也比较简单
+算法思想：
+（1）设G = （V，E）是一个网络，其中|V| = n。初始时取包含G中所有n个顶点但没有任何边的孤立点子图T= (V,{}),T里的每一个顶点自成一个连通分量
+（2）将边集E中的边按权值递增的顺序排列，在构造中的每一步顺序地检查这个边序列，找到下一条（最短的）两端点位于T的两个不同连通分量的边e，把e加入T。这导致两个连通分量由于边e的连接而变成了一个连通分量
+（3）每次操作使T减少一个连通分量，不断重复这个动作加入新边，直到T中所有顶点都包含在一个连通分量里为止，这个连通分量就是G的一棵最小生成树
+算法实现
+"""
+#Krudkal最小生成树算法
+def Kruskal(graph):
+    vnum = graph.vertex_num()
+    reps = [i for i in range(vnum)]
+    mst,edges = [],[]
+    for vi in range(vnum):  #所有边入表
+        for v,w in graph.out_edges(vi):
+            edges.append((w,vi,v))
+    edges.sort()            #按权值排序
+    for w,vi,vj in edges:
+        if reps[vi] != reps[vj]:
+            mst.append((vi,vj),w)
+            if len(mst) == vnum - 1:
+                break
+            rep,orep = rep[vi],reps[vj]
+            for i in range(vnum):  #合并连通分量
+                if reps[i] == orep:
+                    reps[i] = rep
+    return mst
+
+
+   ```
