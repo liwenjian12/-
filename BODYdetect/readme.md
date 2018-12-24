@@ -1,6 +1,6 @@
 # anything about human body detect
 <!--TOC-->
-- [头部姿态估计(Head Pose Estimation)](#头部姿态估计(Head Pose Estimation))
+- [头部姿态估计](#头部姿态估计)
   - [Hopenet](#Hopenet)
   - [HyperFace](#HyperFace)
 <!--/TOC-->
