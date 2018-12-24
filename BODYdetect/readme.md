@@ -12,5 +12,5 @@
 4. 实现追踪：也可称为眼球跟踪。实现追踪可以用在游戏领域，
 
 ### 如何理解原理
-<span style="color:#FFF; font-size: 4em;"> 先了解相机标定：</span>
+<span style="color:#f2cf4a; font-size: 4em;"> 先了解相机标定：</span>
 
